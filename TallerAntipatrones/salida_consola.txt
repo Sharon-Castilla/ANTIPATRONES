@@ -1,0 +1,88 @@
+==================================================
+CASO 1 - God Object
+==================================================
+--- Version heredada (Ramiro lo hace todo) ---
+[OficinaDeTodo/Ramiro] Cobrando $190.0 a Ana Torres
+[OficinaDeTodo/Ramiro] Guardando expediente de Ana Torres
+[OficinaDeTodo/Ramiro] Correo para Ana Torres: su visa va en camino
+Resultado: tramite aprobado, pero todo salio de UNA sola clase
+
+--- Version rescatada (una clase por responsabilidad) ---
+[ValidadorPasaporte] pasaporte valido
+[CobradorDeTarifa] cobrando $190.0 a Ana Torres
+[RepositorioDeExpedientes] guardando expediente de Ana Torres
+[NotificadorPorCorreo] correo para Ana Torres: su visa va en camino
+Resultado: tramite aprobado, cada tarea la hizo una clase distinta
+
+--- Version rescatada con pasaporte invalido ---
+[ValidadorPasaporte] pasaporte invalido
+[TramiteVisa] pasaporte invalido, tramite detenido antes de cobrar
+Resultado: tramite rechazado, no se cobro ni se guardo nada
+
+==================================================
+CASO 2 - Copy-Paste Programming
+==================================================
+--- Version clonada: subir la base de 50 a 60 ---
+Lugares editados: 3
+--- Version Strategy: subir la base de 50 a 60 ---
+Lugares editados: 1
+
+Precios para 3 meses (clonada | Strategy):
+  Turista    : 190.0 | 190.0
+  Estudiante : 95.0 | 95.0
+  Trabajo    : 285.0 | 285.0
+
+--- Y si en la clonada se olvidan de una copia (como paso en el consulado)? ---
+  Trabajo (clonada con olvido): 240.0  <-- precio viejo, deberia ser 285.0
+
+==================================================
+CASO 3 - Magic Numbers
+==================================================
+--- Tipo 2 con edad 20 ---
+Heredada (tipo == 2)           : APROBADA
+Rescatada (TipoVisa.ESTUDIANTE): APROBADA
+
+--- Tipo 9 con edad 20 ---
+Heredada: RECHAZADA  (rechazada en silencio, nadie sabe por que)
+Rescatada: ERROR CLARO -> El tipo de visa 9 no existe. Tipos validos: TURISTA(1), ESTUDIANTE(2), TRABAJO(3)
+
+==================================================
+CASO 4 - Acoplamiento fuerte
+==================================================
+--- Version heredada ---
+   [Correo] aviso de cancelacion enviado
+   [Citas] cupo liberado en la agenda
+Estado: CANCELADA
+Reembolso procesado: false  <-- se olvidaron de la caja, el viajero pierde su plata
+
+--- Version con Observer ---
+   [Correo] aviso de cancelacion enviado a Ana Torres
+   [Citas] cupo liberado de Ana Torres
+   [Pagos] reembolso de $190.0 procesado para Ana Torres
+Estado: CANCELADA
+Reembolsos procesados: 1  <-- la solicitud nunca conocio a los servicios
+
+==================================================
+CASO 5 - Integracion (viaje completo, version nueva)
+==================================================
+1) Solicitar
+   Solicitud de visa TRABAJO creada para Luis Perez (estado ACTIVA)
+2) Evaluar
+   Edad 25 -> APROBADA
+3) Cobrar
+[CobradorDeTarifa] cobrando $465.0 a Luis Perez
+4) Cancelar
+   [Correo] aviso de cancelacion enviado a Luis Perez
+   [Citas] cupo liberado de Luis Perez
+   [Pagos] reembolso de $465.0 procesado para Luis Perez
+   Estado final: CANCELADA | reembolsos: 1
+
+TABLA FINAL: antipatrones capturados
+Antipatron             | Sintoma                            | Solucion
+-----------------------+------------------------------------+------------------------------
+God Object             | Ramiro valida, cobra, guarda y     | Responsabilidad unica (1 clase
+                       | manda el correo                    | por tarea) + TramiteVisa
+Copy-Paste             | Misma cuenta copiada 3 veces       | Strategy + base en un solo lugar
+Magic Numbers          | tipo == 3, * 0.5, edad > 17        | enum TipoVisa y constantes
+Acoplamiento fuerte    | La solicitud crea y llama a los    | Observer (la solicitud solo
+                       | 3 servicios a mano                 | conoce una interfaz)
