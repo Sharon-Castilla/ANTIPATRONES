@@ -166,9 +166,11 @@ Cada tarea del trámite vive en su propia clase y `TramiteVisa` solo decide el o
 
 ## 5. Cómo compilar y ejecutar
 
-```bash
+Desde la raíz del repositorio, en PowerShell:
+
+```powershell
+cd TallerAntipatrones
 mkdir out
-javac -encoding UTF-8 -d out $(find src -name "*.java")
+javac -encoding UTF-8 -d out (Get-ChildItem -Recurse src -Filter *.java).FullName
 java -cp out app.Main
 ```
-En Windows (PowerShell): `javac -d out (Get-ChildItem -Recurse src -Filter *.java).FullName` y luego `java -cp out app.Main`.
